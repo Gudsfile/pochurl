@@ -139,9 +139,9 @@ firebase deploy
 
 ## Deployment
 
-- Via GitHub Action (`.github/workflows/release.yml`)
-- Triggers on published GitHub release
-- Generates `requirements.txt` via `uv export --format requirements-txt`
+- **CI/CD**: GitHub Actions (`.github/workflows/ci.yml`)
+- **Triggers**: Push to main, pull requests, manual dispatch
+- **Dependencies**: Generate `requirements.txt` via `uv export --format requirements-txt`
 
 ## Rules
 
