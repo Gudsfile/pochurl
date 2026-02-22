@@ -57,6 +57,7 @@ firebase deploy
 - Use f-strings for string formatting
 - 4 spaces indentation (no tabs)
 - Maximum ~75 lines per function
+- Maximum line length: 88 characters (ruff default)
 
 ### Naming Conventions
 
@@ -127,8 +128,14 @@ firebase deploy
 
 ### HTTP Endpoints
 
-- Run tests: `pytest` (from project root or functions folder)
-- Test manually with Firebase Emulators
+| Endpoint | Method | Description |
+|----------|--------|-------------|
+| `/add_entry` | POST | Add/update entry with `{"link": "..."}` |
+| `/get_entries` | GET | Get all entries as RSS XML |
+| `/get_github` | GET | Get GitHub entries as RSS |
+| `/get_articles` | GET | Get article entries as RSS |
+| `/get_docs` | GET | Get documentation entries as RSS |
+| `/get_apps` | GET | Get app/site entries as RSS |
 
 ## Deployment
 

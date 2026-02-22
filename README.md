@@ -1,18 +1,18 @@
 # Pochurl
 
-Generate a RSS feed with the links I want to read later.
+Personal RSS feed for links you want to read later.
 
-## Deployment:
+## Deployment
 
 ```shell
 firebase deploy
 ```
 
-## Use
+## Usage
 
-### Add
+### Add Links
 
-To add entries to your RSS feed, use your functions.
+To add entries to your RSS feed, use your Cloud Functions endpoint:
 
 ```shell
 curl --request POST \
@@ -23,17 +23,40 @@ curl --request POST \
      }'
 ```
 
-[See other examples](###Examples).
+You can also specify a category:
 
-### Read
+```shell
+curl --request POST \
+     --url https://add-entry-<SOMETHING>.app/ \
+     --header 'Content-Type: application/json' \
+     --data '{
+         "link": "<THE LINK>",
+         "category": "github"
+     }'
+```
 
-Your RSS feed is available at your function's address (like `https://get-entries-<SOMETHING>.app`).
+Available categories: `github`, `docs`, `article`, `app`
 
-You can use your favorite RSS feed reader ([NetNewsWire](https://github.com/Ranchero-Software/NetNewsWire) 🥸 or any other) to read your _"Read it Later"_ links.
+[See more examples](#examples).
 
-### Examples
+### Read Feed
 
-#### Apple Shortcut
+Your RSS feed is available at your function's address (e.g., `https://get-entries-<SOMETHING>.app`).
+
+You can use your favorite RSS feed reader ([NetNewsWire](https://github.com/Ranchero-Software/NetNewsWire) or any other) to read your "Read it Later" links.
+
+### Filtered Feeds
+
+You can also subscribe to specific categories:
+
+- `get-github` - GitHub repositories
+- `get-articles` - Blog posts and articles
+- `get-docs` - Documentation
+- `get-apps` - App/website links
+
+## Examples
+
+### Apple Shortcut
 
 You can use the adding query in several ways.
 
