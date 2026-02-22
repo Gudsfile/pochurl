@@ -2,12 +2,11 @@ import datetime
 import re
 from base64 import b64encode
 
-import requests
 from firebase_admin import firestore, initialize_app
 from firebase_functions import https_fn
-from readability import Document
 
 from .detect_category import detect_category
+from .extract_content import extract_content
 
 initialize_app()
 
@@ -130,12 +129,6 @@ def get_filtered_entries(category: str) -> https_fn.Response:
     feed = f"{FEED_HEADER}\n{feed_content}\n{FEED_FOOTER}"
 
     return https_fn.Response(feed, mimetype="text/xml")
-
-
-def extract_content(link: str):
-    response = requests.get(link, timeout=10)
-    doc = Document(response.content)
-    return doc.title(), doc.summary()
 
 
 def entry_to_xml(entry_id, link, title, category, updated, content):
