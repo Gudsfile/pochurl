@@ -33,6 +33,7 @@ __pycache__/
 built-package/
 *.egg-info
 dist/
+functions/requirements.txt
 
 # Notes file
 MY_NOTES.md

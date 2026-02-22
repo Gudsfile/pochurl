@@ -4,9 +4,9 @@ from base64 import b64encode
 
 from firebase_admin import firestore, initialize_app
 from firebase_functions import https_fn
-
-from .detect_category import detect_category
-from .extract_content import extract_content
+from lib.detect_category import detect_category
+from lib.entry_to_xml import entry_to_xml
+from lib.extract_content import extract_content
 
 initialize_app()
 
@@ -120,24 +120,8 @@ def get_filtered_entries(category: str) -> https_fn.Response:
     client = firestore.client()
     db = client.collection("entries")
 
-    entries = (
-        db.where("category", "==", category)
-        .order_by("updated", direction=firestore.Query.DESCENDING)
-        .stream()
-    )
+    entries = db.where("category", "==", category).order_by("updated", direction=firestore.Query.DESCENDING).stream()
     feed_content = "\n".join([entry.get("xml_content") for entry in entries])
     feed = f"{FEED_HEADER}\n{feed_content}\n{FEED_FOOTER}"
 
     return https_fn.Response(feed, mimetype="text/xml")
-
-
-def entry_to_xml(entry_id, link, title, category, updated, content):
-    header = "<entry>"
-    entry_id = f"""<id>{entry_id}</id>"""
-    title = f"""<title type="html"><![CDATA[{title}]]></title>"""
-    category_xml = f"""<category>{category}</category>"""
-    updated = f"""<updated>{updated}</updated>"""
-    content = f"""<content type="html"><![CDATA[{content}]]></content>"""
-    link = f"""<link href="{link}"></link>"""
-    footer = "</entry>"
-    return "\n".join([header, title, category_xml, link, updated, content, footer])
