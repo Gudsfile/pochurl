@@ -7,6 +7,8 @@ from firebase_admin import firestore, initialize_app
 from firebase_functions import https_fn
 from readability import Document
 
+from .detect_category import detect_category
+
 initialize_app()
 
 URL_REGEX = re.compile(
@@ -18,6 +20,8 @@ URL_REGEX = re.compile(
     r"(?:/?|[/?]\S+)$",
     re.IGNORECASE,
 )
+
+CATEGORIES = {"github", "docs", "article", "app"}
 
 FEED_HEADER = f"""
 <?xml version="1.1" encoding="utf-8"?>
@@ -52,13 +56,18 @@ def add_entry(req: https_fn.Request) -> https_fn.Response:
     entry_id = b64encode(bytes(link, encoding="utf-8")).decode("utf-8")
     doc_ref = db.document(entry_id)
 
+    category = req.json.get("category")
+    if category not in CATEGORIES:
+        category = detect_category(link)
+
     updated = datetime.datetime.now().isoformat()
     title, content = extract_content(link)
     entry = {
         "link": link,
         "title": title,
+        "category": category,
         "updated": updated,
-        "xml_content": entry_to_xml(entry_id, link, title, updated, content),
+        "xml_content": entry_to_xml(entry_id, link, title, category, updated, content),
     }
 
     existing_doc = doc_ref.get()
@@ -83,18 +92,59 @@ def get_entries(req: https_fn.Request) -> https_fn.Response:
     return https_fn.Response(feed, mimetype="text/xml")
 
 
+@https_fn.on_request()
+def get_github(req: https_fn.Request) -> https_fn.Response:
+    """Return the GitHub entries feed."""
+    return get_filtered_entries("github")
+
+
+@https_fn.on_request()
+def get_articles(req: https_fn.Request) -> https_fn.Response:
+    """Return the article/blog entries feed."""
+    return get_filtered_entries("article")
+
+
+@https_fn.on_request()
+def get_docs(req: https_fn.Request) -> https_fn.Response:
+    """Return the documentation entries feed."""
+    return get_filtered_entries("docs")
+
+
+@https_fn.on_request()
+def get_apps(req: https_fn.Request) -> https_fn.Response:
+    """Return the app/site entries feed."""
+    return get_filtered_entries("app")
+
+
+def get_filtered_entries(category: str) -> https_fn.Response:
+    """Return filtered entries by category."""
+    client = firestore.client()
+    db = client.collection("entries")
+
+    entries = (
+        db.where("category", "==", category)
+        .order_by("updated", direction=firestore.Query.DESCENDING)
+        .stream()
+    )
+    feed_content = "\n".join([entry.get("xml_content") for entry in entries])
+    feed = f"{FEED_HEADER}\n{feed_content}\n{FEED_FOOTER}"
+
+    return https_fn.Response(feed, mimetype="text/xml")
+
+
 def extract_content(link: str):
     response = requests.get(link, timeout=10)
     doc = Document(response.content)
     return doc.title(), doc.summary()
 
 
-def entry_to_xml(entry_id, link, title, updated, content):
+def entry_to_xml(entry_id, link, title, category, updated, content):
     header = "<entry>"
     entry_id = f"""<id>{entry_id}</id>"""
     title = f"""<title type="html"><![CDATA[{title}]]></title>"""
+    category_xml = f"""<category>{category}</category>"""
     updated = f"""<updated>{updated}</updated>"""
     content = f"""<content type="html"><![CDATA[{content}]]></content>"""
     link = f"""<link href="{link}"></link>"""
     footer = "</entry>"
-    return "\n".join([header, title, entry_id, link, updated, content, footer])
+    return "\n".join([header, title, category_xml, link, updated, content, footer])
