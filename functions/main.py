@@ -1,4 +1,5 @@
 import datetime
+import re
 from base64 import b64encode
 
 import requests
@@ -7,6 +8,16 @@ from firebase_functions import https_fn
 from readability import Document
 
 initialize_app()
+
+URL_REGEX = re.compile(
+    r"^https?://"
+    r"(?:(?:[A-Z0-9](?:[A-Z0-9-]{0,61}[A-Z0-9])?\.)+[A-Z]{2,6}\.?|"
+    r"localhost|"
+    r"\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3})"
+    r"(?::\d+)?"
+    r"(?:/?|[/?]\S+)$",
+    re.IGNORECASE,
+)
 
 FEED_HEADER = f"""
 <?xml version="1.1" encoding="utf-8"?>
@@ -26,32 +37,46 @@ FEED_FOOTER = """
 @https_fn.on_request()
 def add_entry(req: https_fn.Request) -> https_fn.Response:
     """Take the body passed to this HTTP endpoint and insert it into
-    a new document in the entries collection."""
+    a new document in the entries collection. Updates 'updated' field if entry exists."""
     link = req.json.get("link")
 
     if link is None:
         return https_fn.Response("No link parameter provided", status=400)
 
+    if not URL_REGEX.match(link):
+        return https_fn.Response("Invalid URL provided", status=400)
+
     client = firestore.client()
     db = client.collection("entries")
 
-    updated = datetime.datetime.now().isoformat()
     entry_id = b64encode(bytes(link, encoding="utf-8")).decode("utf-8")
+    doc_ref = db.document(entry_id)
+
+    updated = datetime.datetime.now().isoformat()
     title, content = extract_content(link)
-    entry = {"link": link, "title": title, "updated": updated, "xml_content": entry_to_xml(entry_id, link, title, updated, content)}
+    entry = {
+        "link": link,
+        "title": title,
+        "updated": updated,
+        "xml_content": entry_to_xml(entry_id, link, title, updated, content),
+    }
 
-    db.document(entry_id).set(entry)
+    existing_doc = doc_ref.get()
+    if existing_doc.exists:
+        doc_ref.update(entry)
+        return https_fn.Response(f"Entry with ID {entry_id} updated.")
 
+    doc_ref.set(entry)
     return https_fn.Response(f"Entry with ID {entry_id} added.")
 
 
 @https_fn.on_request()
 def get_entries(req: https_fn.Request) -> https_fn.Response:
-    """Return the feed XML from the entries collection."""
+    """Return the feed XML from the entries collection, sorted by updated date."""
     client = firestore.client()
     db = client.collection("entries")
 
-    entries = db.stream()
+    entries = db.order_by("updated", direction=firestore.Query.DESCENDING).stream()
     feed_content = "\n".join([entry.get("xml_content") for entry in entries])
     feed = f"{FEED_HEADER}\n{feed_content}\n{FEED_FOOTER}"
 
