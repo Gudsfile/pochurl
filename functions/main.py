@@ -36,8 +36,10 @@ FEED_FOOTER = """
 </feed>
 """
 
+REGION = "europe-west1"
 
-@https_fn.on_request()
+
+@https_fn.on_request(region=REGION)
 def add_entry(req: https_fn.Request) -> https_fn.Response:
     """Take the body passed to this HTTP endpoint and insert it into
     a new document in the entries collection. Updates 'updated' field if entry exists."""
@@ -78,7 +80,7 @@ def add_entry(req: https_fn.Request) -> https_fn.Response:
     return https_fn.Response(f"Entry with ID {entry_id} added.")
 
 
-@https_fn.on_request()
+@https_fn.on_request(region=REGION)
 def get_entries(req: https_fn.Request) -> https_fn.Response:
     """Return the feed XML from the entries collection, sorted by updated date."""
     client = firestore.client()
@@ -91,25 +93,25 @@ def get_entries(req: https_fn.Request) -> https_fn.Response:
     return https_fn.Response(feed, mimetype="text/xml")
 
 
-@https_fn.on_request()
+@https_fn.on_request(region=REGION)
 def get_github(req: https_fn.Request) -> https_fn.Response:
     """Return the GitHub entries feed."""
     return get_filtered_entries("github")
 
 
-@https_fn.on_request()
+@https_fn.on_request(region=REGION)
 def get_articles(req: https_fn.Request) -> https_fn.Response:
     """Return the article/blog entries feed."""
     return get_filtered_entries("article")
 
 
-@https_fn.on_request()
+@https_fn.on_request(region=REGION)
 def get_docs(req: https_fn.Request) -> https_fn.Response:
     """Return the documentation entries feed."""
     return get_filtered_entries("docs")
 
 
-@https_fn.on_request()
+@https_fn.on_request(region=REGION)
 def get_apps(req: https_fn.Request) -> https_fn.Response:
     """Return the app/site entries feed."""
     return get_filtered_entries("app")
