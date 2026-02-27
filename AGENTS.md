@@ -2,9 +2,9 @@
 
 ## Project Overview
 
-Pochurl - Personal RSS feed powered by API, deployed on Firebase Cloud Functions (Python).
+Pochurl is a personal "read it later" RSS feed powered by Firebase Cloud Functions (Python 3.13) and Firestore. Users POST links to an HTTP endpoint; the function fetches the page, extracts content via `readability-lxml`, categorizes it, and stores an Atom XML entry in Firestore. GET endpoints serve Atom feeds filtered by category.
 
-- **Stack**: Python 3.10, Firebase Cloud Functions, Firestore
+- **Stack**: Python 3.13, Firebase Cloud Functions, Firestore
 - **functions/** folder: Cloud Functions code
 - **Entry point**: `functions/main.py`
 - **Tests**: `functions/tests/`
@@ -12,40 +12,37 @@ Pochurl - Personal RSS feed powered by API, deployed on Firebase Cloud Functions
 ## Development Commands
 
 ```bash
-# Install dependencies using uv (recommended)
+# Install dependencies
 uv sync
-
-# Install dev dependencies only
-uv sync --group dev
 
 # Run all tests
 uv run pytest
 
 # Run a single test file
-uv run pytest functions/tests/test_main.py
+uv run pytest tests/test_main.py
 
 # Run a single test by name
-uv run pytest functions/tests/test_main.py::TestUrlValidation::test_valid_https_url
+uv run pytest tests/test_main.py::test_url_regex
 
 # Run tests with verbose output
 uv run pytest -v
 
-# Run linter (ruff check)
+# Lint
 uv run ruff check
 
-# Run formatter check
+# Format check
 uv run ruff format --check
 
-# Auto-fix linting issues
-uv run ruff check --fix
+# Auto-fix and format
+uv run ruff check --fix && uv run ruff format
 
-# Format code automatically
-uv run ruff format
+# Regenerate functions/requirements.txt and virtual env (needed before deploy and emulate)
+make functions-requirements && make functions-venv
 
-# Local development with Firebase emulators
-firebase emulators:start
+# Start Firebase emulators locally
+make emulators
 
-# Deploy to Firebase (requires authentication)
+# Deploy to Firebase
 firebase deploy
 ```
 
