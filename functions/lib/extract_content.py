@@ -9,14 +9,14 @@ def extract_content(link: str):
 
     try:
         response = requests.get(link, timeout=20, headers=headers)
-        doc = Document(response.content)
-        title = doc.title()
-        content = doc.summary()
-
-        if not title or not content:
-            return title, "Empty title or content from readability"
-
-        return title, content
+        doc = Document(response.content.decode("utf-8"))
+        return doc.title(), doc.summary()
 
     except Exception as e:
         return "Error", f"{e}"
+
+
+if __name__ == "__main__":
+    import sys
+
+    print(extract_content(sys.argv[1]))
