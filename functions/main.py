@@ -96,7 +96,7 @@ def get_entries(req: https_fn.Request) -> https_fn.Response:
     feed_content = "\n".join([entry.get("xml_content") for entry in entries])
     feed = f"{FEED_HEADER}\n{feed_content}\n{FEED_FOOTER}"
 
-    return https_fn.Response(feed, mimetype="text/xml")
+    return https_fn.Response(feed, mimetype="text/xml", headers={"Cache-Control": "public, max-age=3600"})
 
 
 @https_fn.on_request(region=REGION, max_instances=MAX_INSTANCES)
@@ -132,4 +132,4 @@ def get_filtered_entries(category: str) -> https_fn.Response:
     feed_content = "\n".join([entry.get("xml_content") for entry in entries])
     feed = f"{FEED_HEADER}\n{feed_content}\n{FEED_FOOTER}"
 
-    return https_fn.Response(feed, mimetype="text/xml")
+    return https_fn.Response(feed, mimetype="text/xml", headers={"Cache-Control": "public, max-age=3600"})
