@@ -4,6 +4,7 @@ from base64 import b64encode
 
 from firebase_admin import firestore, initialize_app
 from firebase_functions import https_fn
+from firebase_functions.params import SecretParam
 from lib.detect_category import detect_category
 from lib.entry_to_xml import entry_to_xml
 from lib.extract_content import extract_content
@@ -38,12 +39,16 @@ FEED_FOOTER = """
 
 REGION = "europe-west1"
 MAX_INSTANCES = 1
+API_KEY = SecretParam("POCHURL_API_KEY")
 
 
-@https_fn.on_request(region=REGION, max_instances=MAX_INSTANCES)
+@https_fn.on_request(region=REGION, max_instances=MAX_INSTANCES, secrets=[API_KEY])
 def add_entry(req: https_fn.Request) -> https_fn.Response:
     """Take the body passed to this HTTP endpoint and insert it into
     a new document in the entries collection. Updates 'updated' field if entry exists."""
+    if req.headers.get("X-API-Key") != API_KEY.value:
+        return https_fn.Response("Unauthorized", status=401)
+
     link = req.json.get("link")
 
     if link is None:

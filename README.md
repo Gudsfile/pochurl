@@ -8,6 +8,14 @@ Personal RSS feed for links you want to read later.
 
 ## Deployment
 
+Before the first deploy, set the API key secret used to authenticate `add_entry`:
+
+```shell
+firebase functions:secrets:set POCHURL_API_KEY
+```
+
+Then deploy:
+
 ```shell
 firebase deploy
 ```
@@ -16,12 +24,13 @@ firebase deploy
 
 ### Add Links
 
-To add entries to your RSS feed, use your Cloud Functions endpoint:
+To add entries to your RSS feed, use your Cloud Functions endpoint with your API key:
 
 ```shell
 curl --request POST \
      --url https://add-entry-<SOMETHING>.app/ \
      --header 'Content-Type: application/json' \
+     --header 'X-API-Key: <YOUR_API_KEY>' \
      --data '{
          "link": "<THE LINK TO READ LATER>"
      }'
@@ -33,6 +42,7 @@ You can also specify a category:
 curl --request POST \
      --url https://add-entry-<SOMETHING>.app/ \
      --header 'Content-Type: application/json' \
+     --header 'X-API-Key: <YOUR_API_KEY>' \
      --data '{
          "link": "<THE LINK>",
          "category": "github"
