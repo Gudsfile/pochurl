@@ -6,7 +6,7 @@
   "functions": [
     {
       "source": "functions",
-      "runtime": "python310",
+      "runtime": "python313",
       "codebase": "default",
       "ignore": ["__pycache__/"]
     }
