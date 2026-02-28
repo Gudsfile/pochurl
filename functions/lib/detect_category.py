@@ -33,4 +33,4 @@ def detect_category(url: str) -> str:
     ):
         return "article"
 
-    return "app"
+    return "misc"

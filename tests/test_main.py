@@ -21,4 +21,4 @@ def test_url_regex(input, is_a_match):
 
 
 def test_valid_categories():
-    assert {"github", "docs", "article", "app"} == CATEGORIES
+    assert {"github", "docs", "article", "misc"} == CATEGORIES
