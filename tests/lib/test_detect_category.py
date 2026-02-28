@@ -21,8 +21,8 @@ from functions.lib.detect_category import detect_category
         ("https://dev.to/user/post", "article"),
         ("https://user.hashnode.dev/post", "article"),
         ("https://github.blog/open-source/maintainers/what-to-expect-for-open-source-in-2026/", "article"),
-        ("https://example.com", "app"),
-        ("https://example.com/about", "app"),
+        ("https://example.com", "misc"),
+        ("https://example.com/about", "misc"),
         ("HTTPS://GITHUB.COM/USER/REPO", "github"),
     ],
 )

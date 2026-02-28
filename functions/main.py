@@ -21,7 +21,7 @@ URL_REGEX = re.compile(
     re.IGNORECASE,
 )
 
-CATEGORIES = {"github", "docs", "article", "app"}
+CATEGORIES = {"github", "docs", "article", "misc"}
 
 FEED_HEADER = f"""
 <?xml version="1.1" encoding="utf-8"?>
@@ -118,9 +118,9 @@ def get_docs(req: https_fn.Request) -> https_fn.Response:
 
 
 @https_fn.on_request(region=REGION, max_instances=MAX_INSTANCES)
-def get_apps(req: https_fn.Request) -> https_fn.Response:
-    """Return the app/site entries feed."""
-    return get_filtered_entries("app")
+def get_misc(req: https_fn.Request) -> https_fn.Response:
+    """Return the miscellaneous entries feed."""
+    return get_filtered_entries("misc")
 
 
 def get_filtered_entries(category: str) -> https_fn.Response:

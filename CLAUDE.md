@@ -45,7 +45,7 @@ firebase deploy
 ### Code Structure
 
 - `functions/main.py` — Cloud Functions entry point; defines all HTTP endpoints decorated with `@https_fn.on_request(region="europe-west1")`
-- `functions/lib/detect_category.py` — URL-pattern-based category detection (github, docs, article, app)
+- `functions/lib/detect_category.py` — URL-pattern-based category detection (github, docs, article, misc)
 - `functions/lib/extract_content.py` — Fetches page and extracts title + HTML content via `readability-lxml`
 - `functions/lib/entry_to_xml.py` — Renders a single Atom `<entry>` XML string
 - `tests/` — pytest tests; `pythonpath = ["functions"]` so imports work as `from functions.main import ...` and `from lib.xxx import ...`
@@ -53,7 +53,7 @@ firebase deploy
 ### Data Flow
 
 1. `POST /add_entry` with `{"link": "..."}` → validate URL → auto-detect or use provided category → `extract_content` → `entry_to_xml` → upsert Firestore doc
-2. `GET /get_entries` (or `/get_github`, `/get_articles`, `/get_docs`, `/get_apps`) → query Firestore `entries` collection → join pre-rendered `xml_content` fields → return Atom feed
+2. `GET /get_entries` (or `/get_github`, `/get_articles`, `/get_docs`, `/get_misc`) → query Firestore `entries` collection → join pre-rendered `xml_content` fields → return Atom feed
 
 ### Firestore Schema
 

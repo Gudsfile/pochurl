@@ -49,7 +49,7 @@ curl --request POST \
      }'
 ```
 
-Available categories: `github`, `docs`, `article`, `app`
+Available categories: `github`, `docs`, `article`, `misc`
 
 [See more examples](#examples).
 
@@ -66,7 +66,7 @@ You can also subscribe to specific categories:
 - `get-github` - GitHub repositories
 - `get-articles` - Blog posts and articles
 - `get-docs` - Documentation
-- `get-apps` - App/website links
+- `get-misc` - Miscellaneous links
 
 ## Examples
 
